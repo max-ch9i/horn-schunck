@@ -24,12 +24,14 @@ int main()
   MatIterator_<VT> ptr_res = res.begin<VT>();
 
   ++ptr1;
+  ++ptr_res;
   while (ptr1 != end1-1) 
   {
     VT prev = *(--ptr1);
-    VT next = *(2 + ptr1);
-    B diff = next-prev;
-    *ptr_res = diff;
+    VT next = *(ptr1+=2);
+    B diff = (next-prev)/2;
+    *ptr_res = abs(diff);
+    ++ptr_res;
 
     // VT a = *ptr1;
     // VT b = *ptr2;
