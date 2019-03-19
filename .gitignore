@@ -1,0 +1,7 @@
+valgrind
+main.dSYM
+bin
+*.swp
+prog
+*.o
+*.d
