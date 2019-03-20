@@ -1,13 +1,17 @@
 #include <iostream>
-
+#include <iomanip>
+#include <string>
 #include <opencv2/opencv.hpp>
+
+// ffmpeg -framerate 24 -i derivative/%03d.jpg out.mp4
+
 using namespace cv;
 
 template <class T>
 struct neighbourhood;
 
 template <class T, class U>
-U dee_I_dee_x(neighbourhood<T> hood)
+U dee_I_dee_x(const neighbourhood<T>& hood)
 {
   // First 
   U ret = (hood.I_xd_y_t + hood.I_xd_y_td + hood.I_xd_yd_t + hood.I_xd_yd_td)/4
@@ -17,7 +21,7 @@ U dee_I_dee_x(neighbourhood<T> hood)
 }
 
 template <class T, class U>
-U dee_I_dee_y(neighbourhood<T> hood)
+U dee_I_dee_y(const neighbourhood<T>& hood)
 {
   U ret = (hood.I_x_yd_t + hood.I_x_yd_td + hood.I_xd_yd_t + hood.I_xd_yd_td)/4
             - (hood.I_x_y_t + hood.I_x_y_td + hood.I_xd_y_t + hood.I_xd_y_td)/4;
@@ -26,7 +30,7 @@ U dee_I_dee_y(neighbourhood<T> hood)
 }
 
 template <class T, class U>
-U dee_I_dee_t(neighbourhood<T> hood)
+U dee_I_dee_t(const neighbourhood<T>& hood)
 {
   U ret = (hood.I_x_y_td + hood.I_x_yd_td + hood.I_xd_y_td + hood.I_xd_yd_td)/4
             - (hood.I_x_y_t + hood.I_x_yd_t + hood.I_xd_y_t + hood.I_xd_yd_t)/4;
@@ -81,42 +85,66 @@ neighbourhood<T> fetch_hood(__uint16_t cols, MatConstIterator_<T> t0, MatConstIt
 int main()
 {
   std::cout << "Differentiating..." << std::endl;
+
   Mat image, image2;
-  image = imread( "1.jpg", IMREAD_COLOR );
-  image2 = imread( "2.jpg", IMREAD_COLOR );
-  Mat res(image);
 
-  Mat grey, grey2;
-  cvtColor(image, grey, COLOR_BGR2GRAY);
-  cvtColor(image2, grey2, COLOR_BGR2GRAY);
-
-  typedef unsigned char VT;
-  typedef Vec<unsigned char, 3> V3T;
-  typedef int B;
-
-  MatConstIterator_<VT> ptr1 = grey.begin<VT>();
-  MatConstIterator_<VT> end1 = grey.end<VT>();
-  MatConstIterator_<VT> ptr2 = grey2.begin<VT>();
-  MatConstIterator_<VT> end2 = grey2.end<VT>();
-
-  MatIterator_<V3T> ptr_res = res.begin<V3T>();
-
-  ++ptr1;
-  ++ptr_res;
-  while (ptr1 != end1-1) 
+  for (int i = 1; i < 10000; ++i)
   {
-    neighbourhood<VT> hood = fetch_hood(res.cols, ptr1, ptr2);
-    B I_x = dee_I_dee_x<VT, B>(hood);
-    B I_y = dee_I_dee_y<VT, B>(hood);
-    B I_t = dee_I_dee_t<VT, B>(hood);
-    *ptr_res = V3T(abs(I_x), abs(I_y), abs(I_t));
+    std::cout << "Differentiating " << i << " ..." << std::endl;
 
-    ++ptr_res;
+    std::stringstream path_im;
+    if (image2.rows == 0)
+    {
+      path_im << "video/" << std::setfill('0') << std::setw(3) << i << ".jpg";
+      image = imread( path_im.str(), IMREAD_COLOR );
+    }
+    else
+    {
+      image = image2;
+    }
+
+    path_im.str(std::string());
+    path_im << "video/" << std::setfill('0') << std::setw(3) << (i + 1) << ".jpg";
+    image2 = imread( path_im.str(), IMREAD_COLOR );
+
+    Mat res(image);
+
+    Mat grey, grey2;
+    cvtColor(image, grey, COLOR_BGR2GRAY);
+    cvtColor(image2, grey2, COLOR_BGR2GRAY);
+
+    typedef unsigned char VT;
+    typedef Vec<unsigned char, 3> V3T;
+    typedef int B;
+
+    MatConstIterator_<VT> ptr1 = grey.begin<VT>();
+    MatConstIterator_<VT> end1 = grey.end<VT>();
+    MatConstIterator_<VT> ptr2 = grey2.begin<VT>();
+    MatConstIterator_<VT> end2 = grey2.end<VT>();
+
+    MatIterator_<V3T> ptr_res = res.begin<V3T>();
+
     ++ptr1;
-    ++ptr2;
-  }
+    ++ptr_res;
+    while (ptr1 != end1-1) 
+    {
+      neighbourhood<VT> hood = fetch_hood(res.cols, ptr1, ptr2);
+      B I_x = dee_I_dee_x<VT, B>(hood);
+      B I_y = dee_I_dee_y<VT, B>(hood);
+      B I_t = dee_I_dee_t<VT, B>(hood);
+      *ptr_res = V3T(abs(I_x), abs(I_y), abs(I_t));
 
-  imwrite("alpha.jpg", res);
+      ++ptr_res;
+      ++ptr1;
+      ++ptr2;
+    }
+
+    path_im.str(std::string());
+    path_im << "derivative/" << std::setfill('0') << std::setw(3) << i << ".jpg";
+
+    imwrite(path_im.str(), res);
+
+  }
 
   std::cout << "Done..." << std::endl;
 }

@@ -5,3 +5,6 @@ bin
 prog
 *.o
 *.d
+video
+derivative
+out.mp4
