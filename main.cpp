@@ -3,9 +3,6 @@
 #include <opencv2/opencv.hpp>
 using namespace cv;
 
-typedef unsigned char VT;
-typedef int B;
-
 template <class T>
 struct neighbourhood;
 
@@ -83,22 +80,26 @@ neighbourhood<T> fetch_hood(__uint16_t cols, MatConstIterator_<T> t0, MatConstIt
 
 int main()
 {
-  std::cout << "hi there" << std::endl;
+  std::cout << "Differentiating..." << std::endl;
   Mat image, image2;
   image = imread( "1.jpg", IMREAD_COLOR );
   image2 = imread( "2.jpg", IMREAD_COLOR );
+  Mat res(image);
 
   Mat grey, grey2;
   cvtColor(image, grey, COLOR_BGR2GRAY);
   cvtColor(image2, grey2, COLOR_BGR2GRAY);
-  Mat res(grey2);
+
+  typedef unsigned char VT;
+  typedef Vec<unsigned char, 3> V3T;
+  typedef int B;
 
   MatConstIterator_<VT> ptr1 = grey.begin<VT>();
   MatConstIterator_<VT> end1 = grey.end<VT>();
   MatConstIterator_<VT> ptr2 = grey2.begin<VT>();
   MatConstIterator_<VT> end2 = grey2.end<VT>();
 
-  MatIterator_<VT> ptr_res = res.begin<VT>();
+  MatIterator_<V3T> ptr_res = res.begin<V3T>();
 
   ++ptr1;
   ++ptr_res;
@@ -108,7 +109,8 @@ int main()
     B I_x = dee_I_dee_x<VT, B>(hood);
     B I_y = dee_I_dee_y<VT, B>(hood);
     B I_t = dee_I_dee_t<VT, B>(hood);
-    *ptr_res = abs(I_t);
+    *ptr_res = V3T(abs(I_x), abs(I_y), abs(I_t));
+
     ++ptr_res;
     ++ptr1;
     ++ptr2;
@@ -116,5 +118,5 @@ int main()
 
   imwrite("alpha.jpg", res);
 
-  std::cout << "done" << std::endl;
+  std::cout << "Done..." << std::endl;
 }
