@@ -86,8 +86,9 @@ neighbourhood<T> fetch_hood(__uint16_t cols, MatConstIterator_<T> t0, MatConstIt
 
 int main()
 {
-  std::vector<float> vec{1,2,3,4};
-  jacobi_iterate<float, 4>(cv::Mat_<float>(2,2, vec.data()));
+  std::vector<unsigned char> vec{2,1,2,3};
+  std::vector<unsigned char> b{4,8};
+  jacobi_iterate<float, CV_32F>(cv::Mat_<unsigned char>(2,2, vec.data()), cv::Mat_<unsigned char>(2, 1, b.data()));
   return 0;
   std::cout << "Differentiating..." << std::endl;
 
