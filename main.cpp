@@ -2,6 +2,8 @@
 #include <iomanip>
 #include <string>
 #include <opencv2/opencv.hpp>
+#include "jacobi.hpp"
+#include <vector>
 
 // ffmpeg -framerate 24 -i derivative/%03d.jpg out.mp4
 
@@ -84,6 +86,9 @@ neighbourhood<T> fetch_hood(__uint16_t cols, MatConstIterator_<T> t0, MatConstIt
 
 int main()
 {
+  std::vector<float> vec{1,2,3,4};
+  jacobi_iterate<float, 4>(cv::Mat_<float>(2,2, vec.data()));
+  return 0;
   std::cout << "Differentiating..." << std::endl;
 
   Mat image, image2;

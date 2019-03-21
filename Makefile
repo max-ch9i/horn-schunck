@@ -1,13 +1,15 @@
 LINK.o = $(CXX) $(CXXFLAGS) $(LDFLAGS) $(TARGET_ARCH)
 CXXFLAGS = -std=c++11 -g -O0 -I/anaconda3/include -Wall -fPIC
-LDFLAGS= -L/anaconda3/lib \
+LDFLAGS= -rpath /anaconda3/lib	\
+				 -L/anaconda3/lib \
 				 -lopencv_core \
 				 -lopencv_imgproc \
-				 -lopencv_imgcodecs \
+				 -lopencv_imgcodecs
 
-SOURCES = main.cpp
+SOURCES = main.cpp \
+					jacobi.cpp
 
-main: main.o
+main: jacobi.o main.o
 
 # link: State.o Context.o vec.o
 # 	g++ -shared -std=c++11 -g -O0 -Wall -fPIC State.o Context.o -o libbutton.so
