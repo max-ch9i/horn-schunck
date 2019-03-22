@@ -110,7 +110,7 @@ int main()
 
   Mat image, image2;
 
-  for (int i = 1; i < 3; ++i)
+  for (int i = 1; i < 542; ++i)
   {
     std::cout << "Differentiating " << i << " ..." << std::endl;
 
@@ -173,8 +173,10 @@ int main()
     }
 
     // Iterate
-    for (int i = 0; i < 5; ++i)
+    for (int i = 0; i < 10; ++i)
     {
+      // float u_max = 0;
+      // float v_max = 0;
       UV = UV1;
 
       int UV_cols = UV.cols; 
@@ -237,6 +239,8 @@ int main()
 
         float u_1 = r(u_bar - I_x * alpha);
         float v_1 = r(v_bar - I_y * alpha);
+        // u_max = abs(u_1) > u_max ? abs(u_1) : u_max;
+        // v_max = abs(v_1) > v_max ? abs(v_1) : v_max;
 
         //std::cout << u_1 << std::endl;
 
@@ -253,14 +257,17 @@ int main()
         ++UV1_ptr;
         ++dee_ptr;
       }
+      // std::cout << "u_max: " << u_max << std::endl;
+      // std::cout << "v_max: " << v_max << std::endl;
     }
 
+    // Uncomment to scale the output
     MatIterator_<DEE3T> UV1_ptr = UV1.begin<DEE3T>();
     MatIterator_<DEE3T> UV1_end = UV1.end<DEE3T>();
     while (UV1_ptr != UV1_end) 
     {
       DEE3T uv = *UV1_ptr;
-      *UV1_ptr = DEE3T(uv[0] * 255, uv[1] * 255, 0);
+      *UV1_ptr = DEE3T(abs(uv[0]), abs(uv[1]), 0);
       ++UV1_ptr;
     }
 
